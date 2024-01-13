@@ -1,0 +1,32 @@
+ESP32 Firmware for communication between ESP32 and ROS:
+
+cpp
+Copy code
+#include <ros.h>
+#include <sensor_msgs/LaserScan.h>
+
+ros::NodeHandle nh;
+
+sensor_msgs::LaserScan lidar_data;
+ros::Publisher lidar_pub("lidar_scan", &lidar_data);
+
+void setup() {
+  nh.initNode();
+  nh.advertise(lidar_pub);
+
+  // Initialize RPLIDAR and other necessary setup
+
+  // Add any other setup code for your ESP32
+}
+
+void loop() {
+  // Read data from RPLIDAR
+  // Populate lidar_data with the obtained data
+
+  // Publish data to ROS
+  lidar_pub.publish(&lidar_data);
+
+  nh.spinOnce();
+
+  // Add any other loop code for your ESP32
+}
