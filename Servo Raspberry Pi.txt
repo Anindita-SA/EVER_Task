@@ -1,0 +1,64 @@
+This project uses Python scripts run on a Raspberry Pi microcontroller to send GPIO PWM outputs to a servo motor to set its angle. We'll be sending PWM signals from one GPIO pin on the RPi, and powering it from the GPIO board, so three wires will run from the servo to the RPi.
+
+Plug a M/F jumper into each of the holes on the end of the servo cord, then plug the one coming off the red wire into pin #2, the one coming off of the brown into pin #6, and the one coming out of the yellow wire into pin #3. That's all there is to it, and if those instructions aren't clear enough, just look above at the pictures.
+
+Software Setup:
+First, we need to open a program on the Pi to write our code. We're going to use IDLE 2
+# click Menu
+# click Programming
+# click Python 2(IDLE). 
+
+A blank text editor with an untitled document should come. 
+
+The first thing we need to do is import the GPIO module. So, on the first line, type exactly, CaSe sensitive,
+
+import RPi.GPIO as GPIO
+
+this imports the GPIO module
+next, we need a command called 'sleep', so write
+
+from time import sleep
+next we need to name all of the pins, so set the naming mode by writing
+
+GPIO.setmode(GPIO.BOARD)
+this sets the names to board mode, which just names the pins according to the numbers in the middle of the diagram above.
+
+Now we need an output to send our PWM signal on, so write
+
+GPIO.setup(03, GPIO.OUT)
+
+Now setup PWM on pin #3 at 50Hz
+
+pwm=GPIO.PWM(03, 50)
+
+Then start it with 0 duty cycle so it doesn't set any angles on startup
+
+pwm.start(0)
+
+Now, to set the angle of the servo, we need to send a specific signal to it. This can differ from servo to servo, as normally it's from 2.5-12.5%, and on the ones we're using it's 2-12%. Regardless, it will be a 10% window, so to calculate the duty cycle for our desired angle, divide by 18, then add the lowest available value, in this case 2.
+
+So, for 90 degrees, divide by 18, which is 5, then add 2, and we get 7. So on this servo 7% duty is 90 degrees.
+
+As we can see, this math is not very friendly and would be tedious to do every time we wanted to set an angle, so in order to simplify that we're going to write a function in Python that does the math automatically then sets the angle.
+
+So, first define a function. We can name it whatever you like.
+
+def SetAngle(angle):
+	duty = angle / 18 + 2
+	GPIO.output(03, True)
+	pwm.ChangeDutyCycle(duty)
+	sleep(1)
+	GPIO.output(03, False)
+	pwm.ChangeDutyCycle(0)
+
+Now in our code we can call the function, by writing
+
+SetAngle(90) 
+to tell the servo to turn to 90 degrees.
+
+So, in our code, call a few angles, and when we run the code we'll see how they run on the servo.
+
+At the end of our code, make sure to write
+
+pwm.stop()
+GPIO.cleanup()
